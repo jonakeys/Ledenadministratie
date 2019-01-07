@@ -33,6 +33,8 @@ public class Ledenadmingui extends javax.swing.JFrame {
      * keuzelijsten.
      */
     private void mijnInit() {
+        int huidigJaar = LocalDate.now().getYear();
+
         naamTekstveld.setText("");
         woonplaatsTekstveld.setText("");
         dagComboBox.removeAllItems();
@@ -44,7 +46,7 @@ public class Ledenadmingui extends javax.swing.JFrame {
         for (int i = 1; i <= 12; i++) {
             maandComboBox.addItem("" + i);
         }
-        for (int i = 1900; i <= 2050; i++) {
+        for (int i = 1900; i <= huidigJaar; i++) {
             jaarComboBox.addItem("" + i);
         }
         ledenlijstTekstGebied.setText("Voeg een lid toe of klik op 'Open lijst' om het bestand te openen.");
