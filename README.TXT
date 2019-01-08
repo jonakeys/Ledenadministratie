@@ -1,8 +1,9 @@
 LEDENADMINISTRATIE
 (Written in JAVA)
 
-Simple program to enter name, birthdate and living place and add that to a list. You can open or save a list. Members can be edited (name + living place) and removed. The list can be sorted (by name). The language used is 
-Dutch.
+Simple program to enter name, birthdate and living place and add that to a list.
+You can open or save a list. Members can be edited (name + living place) and removed. 
+The list can be sorted (by name). The language used is Dutch.
 
 I've made it with Netbeans 10.0 IDE.
 
