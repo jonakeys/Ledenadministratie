@@ -5,6 +5,8 @@
  */
 package ledenadmingui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import ledenadmin.Ledenlijst;
@@ -34,7 +36,6 @@ public class Ledenadmingui extends javax.swing.JFrame {
      */
     private void mijnInit() {
         int huidigJaar = LocalDate.now().getYear();
-
         naamTekstveld.setText("");
         woonplaatsTekstveld.setText("");
         dagComboBox.removeAllItems();
@@ -50,8 +51,32 @@ public class Ledenadmingui extends javax.swing.JFrame {
             jaarComboBox.addItem("" + i);
         }
         ledenlijstTekstGebied.setText("Voeg een lid toe of klik op 'Open lijst' om het bestand te openen.");
-        updateVerwijderComboBox();
         statusTekstveld.setText("Status...");
+        updateElementen();
+        startComboBox();
+    }
+
+    /**
+     * Voeg een ActionListener toe aan de ComboBox voor bewerken.
+     */
+    private void startComboBox() {
+        bewerkComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                bewerkNaamWoonplaats();
+            }
+        });
+    }
+
+    /**
+     * Vult de velden 'Naam:' en 'Woonplaats:' in met gegevens van geselecteerde
+     * lid.
+     */
+    private void bewerkNaamWoonplaats() {
+        if (lijst.getSize() > 0 && bewerkComboBox.getSelectedIndex() >= 0) {
+            bewerkNaamTekstveld.setText(lijst.toonLidNaam(bewerkComboBox.getSelectedIndex()));
+            bewerkWoonplaatsTekstveld.setText(lijst.toonLidWoonplaats(bewerkComboBox.getSelectedIndex()));
+        }
     }
 
     /**
@@ -63,8 +88,7 @@ public class Ledenadmingui extends javax.swing.JFrame {
      */
     private void voegLidToe(String naam, LocalDate geboortedatum, String woonplaats) {
         lijst.voegLidToe(naam, geboortedatum, woonplaats);
-        resetVelden();
-        updateVerwijderComboBox();
+        updateElementen();
         statusTekstveld.setText("Lid succesvol toegevoegd");
     }
 
@@ -77,6 +101,8 @@ public class Ledenadmingui extends javax.swing.JFrame {
         dagComboBox.setSelectedIndex(0);
         maandComboBox.setSelectedIndex(0);
         jaarComboBox.setSelectedIndex(0);
+        bewerkNaamTekstveld.setText("");
+        bewerkWoonplaatsTekstveld.setText("");
     }
 
     /**
@@ -91,8 +117,7 @@ public class Ledenadmingui extends javax.swing.JFrame {
      */
     private void sorteer() {
         lijst.sorteerLeden();
-        toonLedenlijst();
-        updateVerwijderComboBox();
+        updateElementen();
         statusTekstveld.setText("Lijst gesorteerd");
     }
 
@@ -106,12 +131,15 @@ public class Ledenadmingui extends javax.swing.JFrame {
     /**
      * Vernieuw de gegevens in de ComboBox met de huidige lijst.
      */
-    private void updateVerwijderComboBox() {
+    private void updateComboBox() {
         verwijderComboBox.removeAllItems();
+        bewerkComboBox.removeAllItems();
         for (int i = 0; i < lijst.getSize(); i++) {
             verwijderComboBox.addItem(lijst.toonLid(i));
+            bewerkComboBox.addItem(lijst.toonLid(i));
         }
         verwijderComboBox.setSelectedIndex(-1);
+        bewerkComboBox.setSelectedIndex(-1);
     }
 
     /**
@@ -121,9 +149,23 @@ public class Ledenadmingui extends javax.swing.JFrame {
      */
     private void verwijderLid(int i) {
         lijst.verwijderLid(i);
-        toonLedenlijst();
-        updateVerwijderComboBox();
+        updateElementen();
         statusTekstveld.setText("Lid verwijderd");
+    }
+
+    /**
+     * Bewerk de naam of woonplaats van een lid uit de lijst.
+     *
+     * @param i Volgnummer van lid in de lijst.
+     */
+    private void bewerkLid(int i) {
+        String naam = "";
+        String woonplaats = "";
+        naam = bewerkNaamTekstveld.getText();
+        woonplaats = bewerkWoonplaatsTekstveld.getText();
+        lijst.bewerkLid(i, naam, woonplaats);
+        updateElementen();
+        statusTekstveld.setText("Lid bewerkt");
     }
 
     /**
@@ -142,6 +184,15 @@ public class Ledenadmingui extends javax.swing.JFrame {
             isGeldig = false;
         }
         return isGeldig;
+    }
+
+    /**
+     * Vernieuw alle dynamische velden met huidige gegevens.
+     */
+    public void updateElementen() {
+        toonLedenlijst();
+        updateComboBox();
+        resetVelden();
     }
 
     /**
@@ -175,6 +226,13 @@ public class Ledenadmingui extends javax.swing.JFrame {
         jaarComboBox = new javax.swing.JComboBox<>();
         resetButton = new javax.swing.JButton();
         voegToeButton = new javax.swing.JButton();
+        bewerkenPanel = new javax.swing.JPanel();
+        bewerkComboBox = new javax.swing.JComboBox<>();
+        bewerkButton = new javax.swing.JButton();
+        bewerkNaamLabel = new javax.swing.JLabel();
+        bewerkWoonplaatsLabel = new javax.swing.JLabel();
+        bewerkNaamTekstveld = new javax.swing.JTextField();
+        bewerkWoonplaatsTekstveld = new javax.swing.JTextField();
         verwijderenPanel = new javax.swing.JPanel();
         verwijderComboBox = new javax.swing.JComboBox<>();
         verwijderLidButton = new javax.swing.JButton();
@@ -281,7 +339,8 @@ public class Ledenadmingui extends javax.swing.JFrame {
 
         getContentPane().add(jPanel2, java.awt.BorderLayout.CENTER);
 
-        toevoegenPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jTabbedPane1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
         toevoegenPanel.setName(""); // NOI18N
 
         naamLabel.setText("Naam:");
@@ -362,7 +421,7 @@ public class Ledenadmingui extends javax.swing.JFrame {
                         .addGroup(toevoegenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(woonplaatsLabel)
                             .addComponent(woonplaatsTekstveld, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 55, Short.MAX_VALUE))
+                        .addGap(0, 67, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, toevoegenPanelLayout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(toevoegenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -373,9 +432,82 @@ public class Ledenadmingui extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Toevoegen", toevoegenPanel);
 
-        verwijderenPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        bewerkComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        bewerkComboBox.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                bewerkComboBoxItemStateChanged(evt);
+            }
+        });
+        bewerkComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bewerkComboBoxActionPerformed(evt);
+            }
+        });
+
+        bewerkButton.setText("Bewerk lid");
+        bewerkButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bewerkButtonActionPerformed(evt);
+            }
+        });
+
+        bewerkNaamLabel.setText("Naam:");
+
+        bewerkWoonplaatsLabel.setText("Woonplaats:");
+
+        bewerkNaamTekstveld.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bewerkNaamTekstveldActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout bewerkenPanelLayout = new javax.swing.GroupLayout(bewerkenPanel);
+        bewerkenPanel.setLayout(bewerkenPanelLayout);
+        bewerkenPanelLayout.setHorizontalGroup(
+            bewerkenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(bewerkenPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(bewerkenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(bewerkComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, bewerkenPanelLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(bewerkButton))
+                    .addGroup(bewerkenPanelLayout.createSequentialGroup()
+                        .addGroup(bewerkenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(bewerkWoonplaatsLabel)
+                            .addComponent(bewerkNaamLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(bewerkenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(bewerkNaamTekstveld)
+                            .addComponent(bewerkWoonplaatsTekstveld, javax.swing.GroupLayout.DEFAULT_SIZE, 558, Short.MAX_VALUE))))
+                .addContainerGap())
+        );
+        bewerkenPanelLayout.setVerticalGroup(
+            bewerkenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(bewerkenPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(bewerkComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(bewerkenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(bewerkNaamLabel)
+                    .addComponent(bewerkNaamTekstveld, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(bewerkenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(bewerkWoonplaatsLabel)
+                    .addComponent(bewerkWoonplaatsTekstveld, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                .addComponent(bewerkButton)
+                .addContainerGap())
+        );
+
+        jTabbedPane1.addTab("Bewerken", bewerkenPanel);
 
         verwijderComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        verwijderComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                verwijderComboBoxActionPerformed(evt);
+            }
+        });
 
         verwijderLidButton.setText("Verwijder lid");
         verwijderLidButton.addActionListener(new java.awt.event.ActionListener() {
@@ -390,10 +522,12 @@ public class Ledenadmingui extends javax.swing.JFrame {
             verwijderenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(verwijderenPanelLayout.createSequentialGroup()
                 .addGroup(verwijderenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(verwijderComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, verwijderenPanelLayout.createSequentialGroup()
+                    .addGroup(verwijderenPanelLayout.createSequentialGroup()
                         .addGap(0, 556, Short.MAX_VALUE)
-                        .addComponent(verwijderLidButton)))
+                        .addComponent(verwijderLidButton))
+                    .addGroup(verwijderenPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(verwijderComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         verwijderenPanelLayout.setVerticalGroup(
@@ -401,7 +535,7 @@ public class Ledenadmingui extends javax.swing.JFrame {
             .addGroup(verwijderenPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(verwijderComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 80, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 92, Short.MAX_VALUE)
                 .addComponent(verwijderLidButton)
                 .addContainerGap())
         );
@@ -433,8 +567,7 @@ public class Ledenadmingui extends javax.swing.JFrame {
             } else {
                 statusTekstveld.setText("Geen lid toegevoegd");
             }
-            toonLedenlijst();
-            updateVerwijderComboBox();
+            updateElementen();
         } else {
             statusTekstveld.setText("Ongeldige datum ingevoerd");
         }
@@ -461,8 +594,8 @@ public class Ledenadmingui extends javax.swing.JFrame {
         } else {
             statusTekstveld.setText("Bestand kon niet worden geopend");
         }
-        toonLedenlijst();
-        updateVerwijderComboBox();
+        updateElementen();
+        resetVelden();
     }//GEN-LAST:event_openButtonActionPerformed
 
     private void sorteerOpNaamButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sorteerOpNaamButtonActionPerformed
@@ -475,10 +608,29 @@ public class Ledenadmingui extends javax.swing.JFrame {
 
     private void wisButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wisButtonActionPerformed
         wisLijst();
-        toonLedenlijst();
-        updateVerwijderComboBox();
+        updateElementen();
         statusTekstveld.setText("Lijst gewist");
     }//GEN-LAST:event_wisButtonActionPerformed
+
+    private void bewerkNaamTekstveldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bewerkNaamTekstveldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bewerkNaamTekstveldActionPerformed
+
+    private void verwijderComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_verwijderComboBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_verwijderComboBoxActionPerformed
+
+    private void bewerkComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bewerkComboBoxActionPerformed
+
+    }//GEN-LAST:event_bewerkComboBoxActionPerformed
+
+    private void bewerkComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bewerkComboBoxItemStateChanged
+
+    }//GEN-LAST:event_bewerkComboBoxItemStateChanged
+
+    private void bewerkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bewerkButtonActionPerformed
+        bewerkLid(bewerkComboBox.getSelectedIndex());
+    }//GEN-LAST:event_bewerkButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -517,6 +669,13 @@ public class Ledenadmingui extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bewaarButton;
+    private javax.swing.JButton bewerkButton;
+    private javax.swing.JComboBox<String> bewerkComboBox;
+    private javax.swing.JLabel bewerkNaamLabel;
+    private javax.swing.JTextField bewerkNaamTekstveld;
+    private javax.swing.JLabel bewerkWoonplaatsLabel;
+    private javax.swing.JTextField bewerkWoonplaatsTekstveld;
+    private javax.swing.JPanel bewerkenPanel;
     private javax.swing.JComboBox<String> dagComboBox;
     private javax.swing.JLabel geboortedatumLabel;
     private javax.swing.JPanel jPanel2;
@@ -542,4 +701,5 @@ public class Ledenadmingui extends javax.swing.JFrame {
     private javax.swing.JLabel woonplaatsLabel;
     private javax.swing.JTextField woonplaatsTekstveld;
     // End of variables declaration//GEN-END:variables
+
 }

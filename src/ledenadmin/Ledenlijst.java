@@ -85,6 +85,14 @@ public class Ledenlijst {
         gegevens += lid.getNaam() + ", " + lid.getGeboortedatum() + ", " + lid.getWoonplaats();
         return gegevens;
     }
+    
+    public String toonLidNaam(int i) {
+        return lijst.get(i).getNaam();
+    }
+    
+    public String toonLidWoonplaats(int i) {
+        return lijst.get(i).getWoonplaats();
+    }
 
     /**
      * Geeft de grootte van de lijst.
@@ -102,6 +110,11 @@ public class Ledenlijst {
      */
     public void verwijderLid(int i) {
         lijst.remove(i);
+    }
+    
+    public void bewerkLid(int i, String naam, String woonplaats) {
+        lijst.get(i).setNaam(naam);
+        lijst.get(i).setWoonplaats(woonplaats);
     }
 
     /**

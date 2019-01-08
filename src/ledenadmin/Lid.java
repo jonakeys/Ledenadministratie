@@ -15,10 +15,10 @@ import static java.time.temporal.ChronoUnit.YEARS;
  */
 public class Lid implements Comparable<Lid> {
 
-    private final String naam;
+    private String naam;
     private final LocalDate geboortedatum;
     private final LocalDate vandaag = LocalDate.now();
-    private final String woonplaats;
+    private String woonplaats;
 
     /**
      * Constructor
@@ -40,6 +40,10 @@ public class Lid implements Comparable<Lid> {
      */
     public String getNaam() {
         return naam;
+    }
+    
+    public void setNaam(String naam) {
+        this.naam = naam;
     }
 
     /**
@@ -84,6 +88,10 @@ public class Lid implements Comparable<Lid> {
      */
     public String getWoonplaats() {
         return woonplaats;
+    }
+    
+    public void setWoonplaats(String woonplaats) {
+        this.woonplaats = woonplaats;
     }
 
     /**
